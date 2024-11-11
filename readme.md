@@ -1,4 +1,4 @@
-# Three.js Journey
+# PS1 Demakes
 
 ## Setup
 Download [Node.js](https://nodejs.org/en/download/).
@@ -14,3 +14,7 @@ npm run dev
 # Build for production in the dist/ directory
 npm run build
 ```
+
+## Current games
+
+[wip] Minecraft
