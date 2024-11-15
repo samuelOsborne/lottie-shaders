@@ -21,9 +21,6 @@ loadingManager.onError = (e) => {
     console.error('Texture error', e)
 }
 
-/**
- * Textures
- */
 const textureLoader = new THREE.TextureLoader(loadingManager)
 const diamondTexture = textureLoader.load('/textures/minecraft.png')
 const sandTexture = textureLoader.load('/textures/sand.png')
@@ -52,6 +49,26 @@ dirtTextureTop.generateMipmaps = false
 dirtTextureTop.minFilter = THREE.NearestFilter
 dirtTextureTop.magFilter = THREE.NearestFilter
 
+export const jitterVertexShader = `
+// Needed if shadowmap is enabled
+vec4 worldPosition = modelMatrix * vec4(transformed, 1.0);
+
+vUvTransformed = uv;
+
+vec4 v = modelViewMatrix * vec4(position, 1.0);
+
+gl_Position = projectionMatrix * v;
+
+gl_Position /=  gl_Position.w;
+
+gl_Position.xy = floor(gl_Position.xy * uJitterLevel) / uJitterLevel * gl_Position.w;
+`
+export const jitterFragmentShader = `
+vec4 texelColor = texture2D(map, vUvTransformed);
+diffuseColor *= texelColor;
+gl_FragColor = vec4(diffuseColor);
+`
+
 export const diamondMaterial = new THREE.MeshBasicMaterial({
     map: diamondTexture,
     side: THREE.DoubleSide,
@@ -65,20 +82,7 @@ export const diamondMaterial = new THREE.MeshBasicMaterial({
       ${shader.vertexShader}
     `.replace(
             `#include <worldpos_vertex>`,
-            `
-            // Needed if shadowmap is enabled
-                vec4 worldPosition = modelMatrix * vec4( transformed, 1.0 );
-
-                vUvTransformed = uv;
-
-                vec4 v = modelViewMatrix * vec4(position, 1.0 );
-
-                gl_Position = projectionMatrix * v;
-
-                gl_Position /=  gl_Position.w;
-
-                gl_Position.xy = floor(gl_Position.xy * uJitterLevel) / uJitterLevel * gl_Position.w;
-      `
+            jitterVertexShader
         );
 
         //     shader.fragmentShader = `
@@ -109,34 +113,8 @@ export const sandMaterial = new THREE.MeshBasicMaterial({
       ${shader.vertexShader}
     `.replace(
             `#include <worldpos_vertex>`,
-            `
-            // Needed if shadowmap is enabled
-                vec4 worldPosition = modelMatrix * vec4( transformed, 1.0 );
-
-                vUvTransformed = uv;
-
-                vec4 v = modelViewMatrix * vec4(position, 1.0 );
-
-                gl_Position = projectionMatrix * v;
-
-                gl_Position /=  gl_Position.w;
-
-                gl_Position.xy = floor(gl_Position.xy * uJitterLevel) / uJitterLevel * gl_Position.w;
-      `
+            jitterVertexShader
         );
-
-        //     shader.fragmentShader = `
-        //     varying vec2 vUvTransformed;
-
-        //     ${shader.fragmentShader}
-        //   `.replace(
-        //         `#include <map_fragment>`,
-        //         `
-        //       vec4 texelColor = texture2D(map, vUvTransformed);
-        //       diffuseColor *= texelColor;
-        //       gl_FragColor = vec4(diffuseColor);
-        //     `
-        //     );
     },
 })
 
@@ -153,34 +131,8 @@ export const cobblestoneMaterial = new THREE.MeshBasicMaterial({
       ${shader.vertexShader}
     `.replace(
             `#include <worldpos_vertex>`,
-            `
-            // Needed if shadowmap is enabled
-                vec4 worldPosition = modelMatrix * vec4( transformed, 1.0 );
-
-                vUvTransformed = uv;
-
-                vec4 v = modelViewMatrix * vec4(position, 1.0 );
-
-                gl_Position = projectionMatrix * v;
-
-                gl_Position /=  gl_Position.w;
-
-                gl_Position.xy = floor(gl_Position.xy * uJitterLevel) / uJitterLevel * gl_Position.w;
-      `
+            jitterVertexShader
         );
-
-        //     shader.fragmentShader = `
-        //     varying vec2 vUvTransformed;
-
-        //     ${shader.fragmentShader}
-        //   `.replace(
-        //         `#include <map_fragment>`,
-        //         `
-        //       vec4 texelColor = texture2D(map, vUvTransformed);
-        //       diffuseColor *= texelColor;
-        //       gl_FragColor = vec4(diffuseColor);
-        //     `
-        //     );
     },
 })
 
@@ -197,34 +149,8 @@ export const dirtMaterial = new THREE.MeshBasicMaterial({
       ${shader.vertexShader}
     `.replace(
             `#include <worldpos_vertex>`,
-            `
-            // Needed if shadowmap is enabled
-                vec4 worldPosition = modelMatrix * vec4( transformed, 1.0 );
-
-                vUvTransformed = uv;
-
-                vec4 v = modelViewMatrix * vec4(position, 1.0 );
-
-                gl_Position = projectionMatrix * v;
-
-                gl_Position /=  gl_Position.w;
-
-                gl_Position.xy = floor(gl_Position.xy * uJitterLevel) / uJitterLevel * gl_Position.w;
-      `
+            jitterVertexShader
         );
-
-        //     shader.fragmentShader = `
-        //     varying vec2 vUvTransformed;
-
-        //     ${shader.fragmentShader}
-        //   `.replace(
-        //         `#include <map_fragment>`,
-        //         `
-        //       vec4 texelColor = texture2D(map, vUvTransformed);
-        //       diffuseColor *= texelColor;
-        //       gl_FragColor = vec4(diffuseColor);
-        //     `
-        //     );
     },
 })
 
@@ -241,33 +167,6 @@ export const dirtMaterialTop = new THREE.MeshBasicMaterial({
       ${shader.vertexShader}
     `.replace(
             `#include <worldpos_vertex>`,
-            `
-            // Needed if shadowmap is enabled
-                vec4 worldPosition = modelMatrix * vec4( transformed, 1.0 );
-
-                vUvTransformed = uv;
-
-                vec4 v = modelViewMatrix * vec4(position, 1.0 );
-
-                gl_Position = projectionMatrix * v;
-
-                gl_Position /=  gl_Position.w;
-
-                gl_Position.xy = floor(gl_Position.xy * uJitterLevel) / uJitterLevel * gl_Position.w;
-      `
-        );
-
-        //     shader.fragmentShader = `
-        //     varying vec2 vUvTransformed;
-
-        //     ${shader.fragmentShader}
-        //   `.replace(
-        //         `#include <map_fragment>`,
-        //         `
-        //       vec4 texelColor = texture2D(map, vUvTransformed);
-        //       diffuseColor *= texelColor;
-        //       gl_FragColor = vec4(diffuseColor);
-        //     `
-        //     );
+            jitterVertexShader);
     },
 })

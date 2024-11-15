@@ -1,19 +1,17 @@
 import './style.css'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
-import VertexJitter from './shaders/test/VertexJitter.glsl'
-import FragmentJitter from './shaders/test/FragmentJitter.glsl'
 import * as dat from 'lil-gui'
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js'
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js'
-import { OrderedDitherPass } from './OrderedDitherPass.js'
 import { cobblestoneMaterial, diamondMaterial, dirtMaterial, dirtMaterialTop, sandMaterial } from './Materials.js'
+
+export let stretched = true;
+
 /**
  * Base
  */
-// Debug
 const gui = new dat.GUI()
-
 
 /**
  * Textures
@@ -108,33 +106,62 @@ scene.add(plane)
 /**
  * Sizes
  */
-const sizes = {
-    width: window.innerWidth,
-    height: window.innerHeight
-}
 // const sizes = {
-//     width: 1000,
-//     height: 1000
+//     width: window.innerWidth,
+//     height: window.innerHeight
+// }
+const sizes = {
+    width: 300,
+    height: 150
+}
+
+// Looks better with 300x150 imo
+// const sizes = {
+//     width: 640,
+//     height: 480
 // }
 
+const resize = () => {
+    if (!stretched) {
+        // Update sizes
+        sizes.width = window.innerWidth
+        sizes.height = window.innerHeight
+
+        // Update camera
+        camera.aspect = sizes.width / sizes.height
+        camera.updateProjectionMatrix()
+
+        // Update renderer
+        renderer.setSize(sizes.width, sizes.height)
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+
+        effectComposer.setSize(sizes.width, sizes.height);
+        effectComposer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+
+    } else {
+        // sizes.width = 640;
+        // sizes.height = 480;
+        sizes.width = 300;
+        sizes.height = 150;
+
+        // Update camera
+        camera.aspect = sizes.width / sizes.height
+        camera.updateProjectionMatrix()
+
+        renderer.setSize(sizes.width, sizes.height)
+        renderer.setPixelRatio(1);
+
+        canvas.style.width = "";
+        canvas.style.height = "";
+
+
+        effectComposer.setSize(window.innerWidth, window.innerHeight);
+        effectComposer.setPixelRatio(1)
+    }
+}
+
 window.addEventListener('resize', () => {
-    // Update sizes
-    sizes.width = window.innerWidth
-    sizes.height = window.innerHeight
-
-    // Update camera
-    camera.aspect = sizes.width / sizes.height
-    camera.updateProjectionMatrix()
-
-    // Update renderer
-    renderer.setSize(sizes.width, sizes.height)
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-    // renderer.setPixelRatio(1)
-
-    // Update effect composer
-    effectComposer.setSize(sizes.width, sizes.height);
-    // effectComposer.setPixelRatio(Math.min(window.devicePixelRatio, 2))/
-    effectComposer.setPixelRatio(1)
+    resize();
 })
 
 /**
@@ -159,9 +186,15 @@ const renderer = new THREE.WebGLRenderer({
     antialias: false
 })
 
-// Needed for shadows 
+/**
+ * If we don't set size, the canvas defaults to 300x150
+ * If we set size, it overrides the 100% width/height styling 
+ * So we set the size to the canvas but them remove the styling it adds to get the 100% width/height of the .webgl css class
+ */
 renderer.setSize(sizes.width, sizes.height)
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+canvas.style.width = "";
+canvas.style.height = "";
+renderer.setPixelRatio(1)
 
 /**
  * Post processing
@@ -187,6 +220,32 @@ effectComposer.addPass(renderPass)
 // effectComposer.addPass(orderedDitherEffect);
 
 /**
+ * HTML UI
+ */
+let uiElements = document.querySelectorAll('.ui');
+window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        uiElements.forEach((element) => {
+            element.style.display = element.style.display === 'none' ? 'flex' : 'none';
+        });
+    }
+});
+
+let buttons = document.querySelectorAll('.btn');
+buttons.forEach((element) => {
+    if (element.id === "stretched") {
+        element.addEventListener('click', (e) => {
+            stretched = !stretched;
+
+            console.log(stretched);
+
+            resize();
+        });
+    }
+});
+
+
+/**
  * Animate
  */
 const clock = new THREE.Clock()
@@ -194,9 +253,7 @@ const clock = new THREE.Clock()
 const tick = () => {
     const elapsedTime = clock.getElapsedTime()
 
-    // mesh.position.x += 10
-    // mesh.rotation.y += 0.01
-    // mesh.rotation.z += 0.001
+    diamondBlock.rotation.y += 0.01
 
     // Update controls
     controls.update()
