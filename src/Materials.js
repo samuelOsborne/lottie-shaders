@@ -120,6 +120,7 @@ export const sandMaterial = new THREE.MeshBasicMaterial({
 
 export const cobblestoneMaterial = new THREE.MeshBasicMaterial({
     map: cobblestoneTexture,
+    wireframe: false,
     side: THREE.DoubleSide,
     onBeforeCompile: (shader) => {
         shader.uniforms.uJitterLevel = { value: 100 };
