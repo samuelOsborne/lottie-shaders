@@ -113,6 +113,7 @@ if (ORBIT_CONTROLS) {
 */
 const keyMap = {}
 const onDocumentKey = (e) => {
+    console.log(e.code, e.type)
     keyMap[e.code] = e.type === 'keydown'
 }
 document.addEventListener('keydown', onDocumentKey, false)
@@ -312,7 +313,11 @@ const tick = () => {
         controls.update()
     } else {
         if (keyMap['KeyW'] || keyMap['ArrowUp']) {
-            controls.moveForward(delta * 5)
+            if (keyMap['ShiftLeft'] || keyMap['ShiftRight']) {
+                controls.moveForward(delta * 15)
+            } else {
+                controls.moveForward(delta * 5)
+            }
         }
         if (keyMap['KeyS'] || keyMap['ArrowDown']) {
             controls.moveForward(-delta * 5)
