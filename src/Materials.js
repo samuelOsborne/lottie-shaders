@@ -59,7 +59,7 @@ vec4 v = modelViewMatrix * vec4(position, 1.0);
 
 gl_Position = projectionMatrix * v;
 
-gl_Position /=  gl_Position.w;
+gl_Position /=  max(0.0, gl_Position.w); // This replaces clamp;
 
 gl_Position.xy = floor(gl_Position.xy * uJitterLevel) / uJitterLevel * gl_Position.w;
 `
@@ -171,3 +171,35 @@ export const dirtMaterialTop = new THREE.MeshBasicMaterial({
             jitterVertexShader);
     },
 })
+
+export const loadTextureBuildMaterial = (texturePath) => {
+    const texture = textureLoader.load(texturePath);
+
+    texture.generateMipmaps = false;
+    texture.minFilter = THREE.NearestFilter;
+    texture.magFilter = THREE.NearestFilter;
+    texture.colorSpace = THREE.SRGBColorSpace;
+
+    const material = new THREE.MeshBasicMaterial({
+        map: texture,
+        wireframe: false,
+        side: THREE.DoubleSide,
+        alphaTest: 0.1,
+        transparent: true,
+        onBeforeCompile: (shader) => {
+            shader.uniforms.uJitterLevel = { value: 100 };
+
+            shader.vertexShader = `
+          uniform float uJitterLevel;
+          varying vec2 vUvTransformed;
+          
+          ${shader.vertexShader}
+        `.replace(
+                `#include <worldpos_vertex>`,
+                jitterVertexShader
+            );
+        },
+    })
+
+    return material
+}

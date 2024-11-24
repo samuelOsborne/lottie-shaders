@@ -6,9 +6,14 @@ import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js'
 import { cobblestoneMaterial, diamondMaterial, dirtMaterial, dirtMaterialTop, sandMaterial } from './Materials.js'
 import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js'
-import { createVoxelTerrain } from './VoxelWorld.js'
+import { createWorld } from './SamsVoxelWorld.js'
+import { OrderedDitherPass } from './OrderedDitherPass.js'
 
+/**
+ * User options
+ */
 export let stretched = true;
+export let dithering = true;
 
 const ORBIT_CONTROLS = false;
 
@@ -71,7 +76,7 @@ const sizes = {
  * Camera
  */
 // Base camera
-const camera = new THREE.PerspectiveCamera(50, sizes.width / sizes.height, 0.1, 100)
+const camera = new THREE.PerspectiveCamera(50, sizes.width / sizes.height, 0.1, 500)
 camera.position.x = 1
 camera.position.y = 1
 camera.position.z = 1
@@ -84,7 +89,6 @@ const canvas = document.querySelector('canvas.webgl')
 /**
  * Controls
  */
-
 let controls;
 let canJump = false;
 const velocity = new THREE.Vector3();
@@ -127,15 +131,6 @@ let menuUI = document.getElementById('ui');
 
 let buttons = document.querySelectorAll('.btn');
 buttons.forEach((element) => {
-    if (element.id === "stretched-btn") {
-        element.addEventListener('click', (e) => {
-            stretched = !stretched;
-
-            console.log(stretched);
-
-            resize();
-        });
-    }
     if (element.id === "start-btn") {
         element.addEventListener('click', (e) => {
             console.log('clickety');
@@ -145,6 +140,22 @@ buttons.forEach((element) => {
             } else {
                 menuUI.style.display = 'none'
             }
+        });
+    }
+    if (element.id === "stretched-btn") {
+        element.addEventListener('click', (e) => {
+            stretched = !stretched;
+
+            console.log(stretched);
+
+            resize();
+        });
+    }
+    if (element.id === "dithering-btn") {
+        element.addEventListener('click', (e) => {
+            dithering = !dithering;
+
+            console.log(dithering);
         });
     }
 });
@@ -194,7 +205,8 @@ const plane = new THREE.Mesh(
 )
 plane.rotation.x = - Math.PI * 0.5
 plane.position.y = - 0.65
-scene.add(plane, sandBlock, dirtBlock, diamondBlock, cobblestoneBlock)
+// scene.add(plane, sandBlock, dirtBlock, diamondBlock, cobblestoneBlock)
+scene.add(plane)
 objects.push(sandBlock, dirtBlock, diamondBlock, cobblestoneBlock, plane);
 
 const resize = () => {
@@ -214,6 +226,9 @@ const resize = () => {
         effectComposer.setSize(sizes.width, sizes.height);
         effectComposer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 
+        orderedDitherEffect.updateResolution(sizes.width, sizes.height);
+        orderedDitherEffect.updateDitherScale(1);
+        orderedDitherEffect.updateDitherIntensity(0.1);
     } else {
         // sizes.width = 640;
         // sizes.height = 480;
@@ -231,8 +246,13 @@ const resize = () => {
         canvas.style.height = "";
 
 
-        effectComposer.setSize(window.innerWidth, window.innerHeight);
+        effectComposer.setSize(sizes.width, sizes.height);
         effectComposer.setPixelRatio(1)
+
+        orderedDitherEffect.updateResolution(sizes.width, sizes.height);
+        orderedDitherEffect.updateDitherScale(0.01);
+        orderedDitherEffect.updateDitherIntensity(0.05);
+
     }
 }
 
@@ -242,7 +262,9 @@ window.addEventListener('resize', () => {
 
 scene.add(camera)
 
-createVoxelTerrain(scene);
+// createVoxelTerrain(scene);
+// new VoxelWorld(32);
+createWorld(scene);
 
 /**
  * Renderer
@@ -283,8 +305,8 @@ effectComposer.addPass(renderPass)
 /**
  * Dithering
  */
-// const orderedDitherEffect = new OrderedDitherPass(4, 1.5);
-// effectComposer.addPass(orderedDitherEffect);
+const orderedDitherEffect = new OrderedDitherPass(sizes.width, sizes.height);
+effectComposer.addPass(orderedDitherEffect);
 
 /**
  * Animate
@@ -295,23 +317,22 @@ let delta = 0
 const tick = () => {
     delta = clock.getDelta();
 
-    const controlsObject = controls.getObject();
-
     // Random
     diamondBlock.rotation.y += 0.01
-
-    raycaster.ray.origin.copy(controlsObject.position);
-    raycaster.ray.origin.y -= 0.5;
-
-    const intersections = raycaster.intersectObjects(objects, false);
-    const onObject = intersections.length > 0;
-
-    velocity.y -= 9.8 * 10.0 * delta; // 10.0 = mass
 
     // Update controls
     if (ORBIT_CONTROLS) {
         controls.update()
     } else {
+        const controlsObject = controls.getObject();
+        raycaster.ray.origin.copy(controlsObject.position);
+        raycaster.ray.origin.y -= 0.5;
+
+        const intersections = raycaster.intersectObjects(objects, false);
+        const onObject = intersections.length > 0;
+
+        velocity.y -= 9.8 * 10.0 * delta; // 10.0 = mass
+
         if (keyMap['KeyW'] || keyMap['ArrowUp']) {
             if (keyMap['ShiftLeft'] || keyMap['ShiftRight']) {
                 controls.moveForward(delta * 15)
@@ -353,10 +374,11 @@ const tick = () => {
     }
 
 
-    // effectComposer.render()
-
-    // Render
-    renderer.render(scene, camera)
+    if (!dithering) {
+        renderer.render(scene, camera)
+    } else {
+        effectComposer.render()
+    }
 
     // Call tick again on the next frame
     window.requestAnimationFrame(tick)

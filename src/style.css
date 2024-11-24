@@ -1,24 +1,24 @@
 *
 {
-    margin: 0;
-    padding: 0;
+  margin: 0;
+  padding: 0;
 }
 
 html,
 body
 {
-    overflow: hidden;
+  overflow: hidden;
 }
 
 .webgl
 {
-    width: 100%;
-    height: 100%;
-    position: fixed;
-    top: 0;
-    left: 0;
-    outline: none;
-    image-rendering: pixelated;
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  outline: none;
+  image-rendering: pixelated;
 }
 
 #ui {
@@ -28,54 +28,77 @@ body
   z-index: 1000;
   height: 100vh; /* Set the height of the container to the menu-full viewport height */
 }
-  
-  @font-face {
-    font-family: 'Minecraftia';
-    src: url('/fonts/Minecraftia-Regular.ttf');
-    font-weight: normal;
-    font-style: normal;
-    anti-aliasing: none;
+
+@font-face {
+  font-family: 'Minecraftia';
+  src: url('/fonts/Minecraftia-Regular.ttf');
+  font-weight: normal;
+  font-style: normal;
+  anti-aliasing: none;
 }
 
-  .menu {
-    --btn-size: 30pt;
-    width: 300px;
-    z-index: 1001;
-    font-family: 'Minecraftia';
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-  }
-  
-  /* Minecraft Style Button */
-  .menu-btn {
-    height: var(--btn-size);
-    width: calc(var(--btn-size) * 10);
-    overflow: hidden;
-    white-space: nowrap;
-    user-select: none;
-    background: #999 url('https://i.ibb.co/rb2TWXL/bgbtn.png') center / cover;
-    image-rendering: pixelated;
-    border: 2px solid #000;
-  }
-  .menu-btn:hover .title {
-    background-color: rgba(100, 100, 255, 0.45);
-    text-shadow: 2px 2px #202013CC;
-    color: #FFFFA0;
-  }
-  .menu-btn:active .title {
-    box-shadow: inset -2px -4px #0004, inset 2px 2px #FFF5;
-  }
-  .menu-btn .title {
-    width: 100%;
-    height: 100%;
-    text-align: center;
-    padding: 0.3em;
-    color: #DDD;
-    text-shadow: 2px 2px #000A;
-    box-shadow: inset -2px -4px #0006, inset 2px 2px #FFF7;
-  }
-  .menu-btn.menu-full {
-    width: 100%;
-    height: 100%;
-  }
+.menu {
+  --btn-size: 30pt;
+  width: 300px;
+  z-index: 1001;
+  font-family: 'Minecraftia';
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Minecraft Style Button */
+.menu-btn {
+  height: var(--btn-size);
+  width: calc(var(--btn-size) * 10);
+  overflow: hidden;
+  white-space: nowrap;
+  user-select: none;
+  background: #999 url('https://i.ibb.co/rb2TWXL/bgbtn.png') center / cover;
+  image-rendering: pixelated;
+  border: 2px solid #000;
+}
+.menu-btn:hover .title {
+  background-color: rgba(100, 100, 255, 0.45);
+  text-shadow: 2px 2px #202013CC;
+  color: #FFFFA0;
+}
+.menu-btn:active .title {
+  box-shadow: inset -2px -4px #0004, inset 2px 2px #FFF5;
+}
+.menu-btn .title {
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  padding: 0.3em;
+  color: #DDD;
+  text-shadow: 2px 2px #000A;
+  box-shadow: inset -2px -4px #0006, inset 2px 2px #FFF7;
+}
+.menu-btn.menu-full {
+  width: 100%;
+  height: 100%;
+}
+
+.crosshair-v {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 15px;
+  height: 2px;
+  /* border-radius: 50%; */
+  transform: translate3d(-50%, -50%, 0);
+  border: 1px solid white;
+  background: #ffffff;
+}
+.crosshair-h {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 2px;
+  height: 15px;
+  /* border-radius: 50%; */
+  transform: translate3d(-50%, -50%, 0);
+  border: 1px solid white;
+  background: #ffffff;
+}
